@@ -1,0 +1,102 @@
+@import "tailwindcss";
+
+:root {
+  font-family: 'Rajdhani', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+  color-scheme: dark;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  background-color: #090a0f;
+  color: #f1f5f9;
+  overflow-x: hidden;
+  user-select: none;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Custom font utilities */
+.font-display {
+  font-family: 'Orbitron', 'Rajdhani', sans-serif;
+}
+
+/* Hide scrollbar for clean carousel strips */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+/* 3D Box & Animation Keyframes */
+.preserve-3d {
+  transform-style: preserve-3d;
+}
+
+@keyframes avatarIdle {
+  0%, 100% {
+    transform: translateY(0px) scale(1);
+  }
+  50% {
+    transform: translateY(-4px) scale(1.01);
+  }
+}
+
+.animate-avatar-idle {
+  animation: avatarIdle 3s ease-in-out infinite;
+}
+
+@keyframes crateFloat {
+  0%, 100% {
+    transform: translateY(0px) rotate(0deg);
+  }
+  50% {
+    transform: translateY(-8px) rotate(0.5deg);
+  }
+}
+
+.animate-crate-float {
+  animation: crateFloat 4s ease-in-out infinite;
+}
+
+@keyframes crateShake {
+  0% { transform: translate(1px, 1px) rotate(0deg) scale(1); }
+  10% { transform: translate(-2px, -2px) rotate(-1deg) scale(1.02); }
+  20% { transform: translate(-3px, 0px) rotate(1deg) scale(1.03); }
+  30% { transform: translate(3px, 2px) rotate(0deg) scale(1.05); }
+  40% { transform: translate(1px, -1px) rotate(1deg) scale(1.06); }
+  50% { transform: translate(-1px, 2px) rotate(-1deg) scale(1.08); }
+  60% { transform: translate(-3px, 1px) rotate(0deg) scale(1.1); }
+  70% { transform: translate(3px, 1px) rotate(-1deg) scale(1.12); }
+  80% { transform: translate(-1px, -1px) rotate(1deg) scale(1.14); }
+  90% { transform: translate(2px, 2px) rotate(0deg) scale(1.16); }
+  100% { transform: translate(1px, -2px) rotate(-1deg) scale(1.2); }
+}
+
+.animate-crate-shake {
+  animation: crateShake 0.1s linear infinite;
+}
+
+@keyframes shootUp {
+  0% {
+    transform: translateY(100vh) scale(0.4);
+    opacity: 0;
+  }
+  40% {
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(-15vh) scale(1.1);
+    opacity: 1;
+  }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.3s ease-out forwards;
+}

@@ -1,0 +1,46 @@
+{
+  "name": "casegamba",
+  "version": "1.0.0",
+  "type": "module",
+  "description": "Earn money by selling crazy finds from the prizes you earn by breaking open loot boxes.",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc && vite build",
+    "preview": "vite preview",
+    "sync:site": "npm run build && mkdir -p ../portfolioSite/static/games/caseGamba && cp -r dist/* ../portfolioSite/static/games/caseGamba/"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Qrytics/caseGamba.git"
+  },
+  "keywords": [
+    "lootbox",
+    "overwatch",
+    "game",
+    "gacha",
+    "minigame",
+    "doodle-jump"
+  ],
+  "author": "Mario Belmonte",
+  "license": "MIT",
+  "dependencies": {
+    "@types/canvas-confetti": "^1.9.0",
+    "@types/three": "^0.170.0",
+    "canvas-confetti": "^1.9.4",
+    "lucide-react": "^0.475.0",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "three": "^0.170.0"
+  },
+  "devDependencies": {
+    "@tailwindcss/vite": "^4.3.3",
+    "@types/react": "^18.3.18",
+    "@types/react-dom": "^18.3.5",
+    "@vitejs/plugin-react": "^4.3.4",
+    "autoprefixer": "^10.6.1",
+    "postcss": "^8.5.31",
+    "tailwindcss": "^4.3.3",
+    "typescript": "^5.7.3",
+    "vite": "^6.2.0"
+  }
+}
