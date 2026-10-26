@@ -4,7 +4,7 @@ import { RARITIES } from '../data/rarities';
 import { soundEngine } from '../audio/soundEngine';
 import { LootItemCard } from './LootItemCard';
 import confetti from 'canvas-confetti';
-import { Coins, CheckCircle, ChevronRight } from 'lucide-react';
+import { Coins, CheckCircle, ChevronRight, Sparkles } from 'lucide-react';
 
 interface OpeningOverlayProps {
   items: DroppedItem[];
@@ -41,7 +41,6 @@ export const OpeningOverlay: React.FC<OpeningOverlayProps> = ({ items, onFinish 
     // Phase 4: Land on pedestals (2400ms)
     const landTimer = setTimeout(() => {
       setPhase('land');
-      // Staggered card landings
       items.forEach((item, idx) => {
         const delay = idx * 220;
         soundEngine.playCardLand(item.rarity, delay);
@@ -59,11 +58,10 @@ export const OpeningOverlay: React.FC<OpeningOverlayProps> = ({ items, onFinish 
     const revealTimer = setTimeout(() => {
       setPhase('reveal');
 
-      // Trigger confetti celebration if any Rare, Mythic, or Legendary dropped
       const hasHighRarity = items.some((item) => ['rare', 'mythic', 'legendary'].includes(item.rarity));
       if (hasHighRarity) {
         confetti({
-          particleCount: 100,
+          particleCount: 90,
           spread: 80,
           origin: { y: 0.6 },
           colors: ['#00B0FF', '#FF9100', '#FF1744', '#FFD700'],
@@ -84,7 +82,7 @@ export const OpeningOverlay: React.FC<OpeningOverlayProps> = ({ items, onFinish 
   }, [items, totalDuplicateEarnings]);
 
   return (
-    <div className="fixed inset-0 z-50 flex flex-col items-center justify-between p-6 bg-black/85 backdrop-blur-xl select-none overflow-hidden animate-fade-in">
+    <div className="fixed inset-0 z-50 flex flex-col items-center justify-between p-4 sm:p-6 bg-black/90 backdrop-blur-xl select-none overflow-y-auto no-scrollbar animate-fade-in">
       {/* Dynamic Screen Shake on Blast */}
       <div
         className={`absolute inset-0 pointer-events-none transition-transform duration-75 ${
@@ -113,9 +111,9 @@ export const OpeningOverlay: React.FC<OpeningOverlayProps> = ({ items, onFinish 
                     boxShadow: `0 0 40px ${rarityConfig.hexColor}`,
                   }}
                 />
-                {/* Glowing Core Puck / Disc */}
+                {/* Glowing Core Vector Puck */}
                 <div
-                  className="w-20 h-20 rounded-full border-4 shadow-2xl flex items-center justify-center font-black text-2xl"
+                  className="w-16 h-16 rounded-full border-2 shadow-2xl flex items-center justify-center font-black"
                   style={{
                     borderColor: '#FFFFFF',
                     backgroundColor: rarityConfig.hexColor,
@@ -123,7 +121,7 @@ export const OpeningOverlay: React.FC<OpeningOverlayProps> = ({ items, onFinish 
                     color: '#000',
                   }}
                 >
-                  ★
+                  <Sparkles className="w-8 h-8 fill-black" />
                 </div>
               </div>
             );
@@ -132,28 +130,28 @@ export const OpeningOverlay: React.FC<OpeningOverlayProps> = ({ items, onFinish 
       )}
 
       {/* TOP BAR: Title & Phase Feedback */}
-      <div className="w-full max-w-6xl flex items-center justify-between z-20 pt-2">
+      <div className="w-full max-w-6xl flex items-center justify-between z-20 pt-1">
         <div className="flex items-center gap-3">
-          <span className="text-xl font-black tracking-widest text-white uppercase font-display">
+          <span className="text-lg sm:text-xl font-black tracking-widest text-white uppercase font-display">
             Loot Unboxing
           </span>
-          <span className="text-xs uppercase px-2 py-0.5 rounded bg-zinc-800 text-zinc-400 font-bold border border-zinc-700">
+          <span className="text-[11px] uppercase px-2.5 py-0.5 rounded bg-zinc-800 text-zinc-300 font-bold border border-zinc-700">
             {phase.toUpperCase()}
           </span>
         </div>
 
         {totalDuplicateEarnings > 0 && phase === 'reveal' && (
-          <div className="flex items-center gap-2 bg-amber-500/20 border border-amber-500/50 px-4 py-1.5 rounded-full animate-bounce">
+          <div className="flex items-center gap-2 bg-amber-500/20 border border-amber-500/50 px-3.5 py-1 rounded-full animate-bounce">
             <Coins className="w-4 h-4 text-yellow-400 fill-yellow-400" />
-            <span className="text-sm font-black text-yellow-300">
-              +{totalDuplicateEarnings.toLocaleString()} Coins Auto-Cashed
+            <span className="text-xs sm:text-sm font-black text-yellow-300">
+              +{totalDuplicateEarnings.toLocaleString()} Coins Cashed
             </span>
           </div>
         )}
       </div>
 
-      {/* CENTER: The 4 Dropped Item Cards on Pedestals */}
-      <div className="w-full max-w-6xl my-auto grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 items-center justify-center z-20">
+      {/* CENTER: The 4 Dropped Item Cards */}
+      <div className="w-full max-w-6xl my-auto grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 items-center justify-center z-20 py-4">
         {items.map((item, idx) => (
           <div key={idx} className="flex justify-center">
             <LootItemCard item={item} revealed={revealedCards[idx]} />
@@ -162,21 +160,21 @@ export const OpeningOverlay: React.FC<OpeningOverlayProps> = ({ items, onFinish 
       </div>
 
       {/* BOTTOM ACTION BAR */}
-      <div className="w-full max-w-md flex flex-col items-center gap-3 z-30 pb-4">
+      <div className="w-full max-w-md flex flex-col items-center gap-2 z-30 pb-2">
         {phase === 'reveal' ? (
           <button
             onClick={() => {
               soundEngine.playClick();
               onFinish();
             }}
-            className="w-full py-4 px-8 rounded-xl font-black text-base uppercase tracking-wider text-black bg-gradient-to-r from-amber-400 via-yellow-400 to-amber-500 hover:from-amber-300 hover:to-yellow-300 shadow-xl shadow-yellow-500/30 transition-all duration-200 hover:scale-105 active:scale-95 flex items-center justify-center gap-2"
+            className="w-full py-3.5 px-8 rounded-xl font-black text-sm uppercase tracking-wider text-black bg-gradient-to-r from-amber-400 via-yellow-400 to-amber-500 hover:from-amber-300 hover:to-yellow-300 shadow-xl shadow-yellow-500/30 transition-all duration-200 hover:scale-105 active:scale-95 flex items-center justify-center gap-2"
           >
             <CheckCircle className="w-5 h-5" />
             Claim & Continue
             <ChevronRight className="w-5 h-5 ml-1" />
           </button>
         ) : (
-          <div className="text-zinc-400 text-sm font-bold uppercase tracking-widest flex items-center gap-2 animate-pulse">
+          <div className="text-zinc-400 text-xs font-bold uppercase tracking-widest flex items-center gap-2 animate-pulse py-2">
             <div className="w-2 h-2 rounded-full bg-yellow-400 animate-ping" />
             Cracking Crate Locks...
           </div>

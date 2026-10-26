@@ -3,6 +3,7 @@ import { PlayerCustomization } from '../types/game';
 import { FIGURE_MAP } from '../data/figures';
 import { COSMETIC_MAP } from '../data/cosmetics';
 import { RARITIES } from '../data/rarities';
+import { Sliders } from 'lucide-react';
 
 interface CharacterAvatarProps {
   customization: PlayerCustomization;
@@ -34,13 +35,13 @@ export const CharacterAvatar: React.FC<CharacterAvatarProps> = ({
   const item = customization.cosmetics.item ? COSMETIC_MAP[customization.cosmetics.item] : null;
   const sfx = customization.cosmetics.sfx ? COSMETIC_MAP[customization.cosmetics.sfx] : null;
 
-  const sizePixels = size === 'sm' ? 120 : size === 'md' ? 220 : 320;
+  const sizePixels = size === 'sm' ? 120 : size === 'md' ? 200 : 280;
 
   return (
     <div
       onClick={interactive ? onClick : undefined}
       className={`relative flex flex-col items-center justify-center transition-transform ${
-        interactive ? 'cursor-pointer hover:scale-105 active:scale-95' : ''
+        interactive ? 'cursor-pointer hover:scale-102 active:scale-98' : ''
       }`}
       style={{ width: sizePixels, height: sizePixels + 40 }}
       title={interactive ? 'Click to Customize Avatar' : figure.name}
@@ -54,11 +55,11 @@ export const CharacterAvatar: React.FC<CharacterAvatarProps> = ({
         }}
       />
 
-      {/* SVG Paperdoll Avatar */}
+      {/* SVG Paperdoll Avatar Model */}
       <svg
         viewBox="0 0 200 240"
         className="w-full h-full drop-shadow-2xl overflow-visible"
-        style={{ filter: `drop-shadow(0 8px 16px ${rarityConfig.hexColor}40)` }}
+        style={{ filter: `drop-shadow(0 8px 16px ${rarityConfig.hexColor}35)` }}
       >
         <defs>
           <filter id={`glow-${customization.figureId}`} x="-20%" y="-20%" width="140%" height="140%">
@@ -69,12 +70,16 @@ export const CharacterAvatar: React.FC<CharacterAvatarProps> = ({
             <stop offset="0%" stopColor={variant.primaryColor} />
             <stop offset="100%" stopColor={variant.accentColor} />
           </linearGradient>
+          <linearGradient id="armorShine" x1="0%" y1="0%" x2="0%" y2="100%">
+            <stop offset="0%" stopColor="#ffffff" stopOpacity="0.3" />
+            <stop offset="100%" stopColor="#000000" stopOpacity="0.3" />
+          </linearGradient>
         </defs>
 
         {/* --- LAYER 1: BACK WEARABLE (WINGS, JETPACK, BACKPACK) --- */}
         {wearable && (
           <g className="animate-pulse origin-center">
-            {wearable.icon === '🪽' && (
+            {wearable.iconName === 'seraphim-wings' && (
               <path
                 d="M 50 110 C 10 70, 0 20, 45 40 C 65 50, 75 90, 80 110 M 150 110 C 190 70, 200 20, 155 40 C 135 50, 125 90, 120 110"
                 fill={wearable.styleProps.color || '#FFF'}
@@ -82,7 +87,7 @@ export const CharacterAvatar: React.FC<CharacterAvatarProps> = ({
                 filter={`url(#glow-${customization.figureId})`}
               />
             )}
-            {wearable.icon === '🦇' && (
+            {wearable.iconName === 'dragon-wings' && (
               <path
                 d="M 40 120 C 5 60, -10 30, 40 60 C 60 70, 75 95, 80 120 M 160 120 C 195 60, 210 30, 160 60 C 140 70, 125 95, 120 120"
                 fill="#880e4f"
@@ -90,14 +95,20 @@ export const CharacterAvatar: React.FC<CharacterAvatarProps> = ({
                 strokeWidth="2"
               />
             )}
-            {wearable.icon === '🚀' && (
-              <g>
-                <rect x="75" y="90" width="16" height="40" rx="6" fill="#546e7a" />
-                <rect x="109" y="90" width="16" height="40" rx="6" fill="#546e7a" />
-                <path d="M 78 130 L 83 145 L 88 130 Z M 112 130 L 117 145 L 122 130 Z" fill="#ff7043" />
+            {wearable.iconName === 'blade-wings' && (
+              <g stroke="#00e5ff" strokeWidth="2.5" fill="none">
+                <path d="M 40 110 L 10 70 L 45 80 L 15 50 L 55 60 L 75 95" />
+                <path d="M 160 110 L 190 70 L 155 80 L 185 50 L 145 60 L 125 95" />
               </g>
             )}
-            {wearable.icon === '📦' && (
+            {wearable.iconName === 'jet-turbine' && (
+              <g>
+                <rect x="74" y="90" width="16" height="40" rx="6" fill="#546e7a" />
+                <rect x="110" y="90" width="16" height="40" rx="6" fill="#546e7a" />
+                <path d="M 77 130 L 82 145 L 87 130 Z M 113 130 L 118 145 L 123 130 Z" fill="#ff7043" />
+              </g>
+            )}
+            {wearable.iconName === 'box-backpack' && (
               <rect x="74" y="90" width="52" height="45" rx="4" fill="#8d6e63" stroke="#5d4037" strokeWidth="3" />
             )}
           </g>
@@ -109,7 +120,6 @@ export const CharacterAvatar: React.FC<CharacterAvatarProps> = ({
         {/* --- LAYER 3: BASE FIGURE BODY --- */}
         <g className="animate-avatar-idle origin-bottom">
           {/* LEGS & SHOES */}
-          {/* Base Legs */}
           <rect x="80" y="150" width="16" height="45" rx="6" fill={variant.primaryColor} />
           <rect x="104" y="150" width="16" height="45" rx="6" fill={variant.primaryColor} />
 
@@ -181,6 +191,7 @@ export const CharacterAvatar: React.FC<CharacterAvatarProps> = ({
             stroke={variant.accentColor}
             strokeWidth="2"
           />
+          <rect x="72" y="95" width="56" height="58" rx="12" fill="url(#armorShine)" />
 
           {/* Shirt Cosmetic */}
           {shirt && (
@@ -239,25 +250,25 @@ export const CharacterAvatar: React.FC<CharacterAvatarProps> = ({
             </g>
           )}
 
-          {/* HELD ITEM (FRONT HAND) */}
+          {/* HELD WEAPON / RELIC */}
           {item && (
             <g transform="translate(145, 120)">
-              {item.icon === '⚔️' && (
+              {item.iconName === 'neon-katana' && (
                 <path d="M 0 0 L 25 -35 L 30 -30 L 5 5 Z M -3 3 L 8 -5" stroke="#00e5ff" strokeWidth="3" fill="#fff" />
               )}
-              {item.icon === '🔧' && (
+              {item.iconName === 'pipe-wrench' && (
                 <rect x="0" y="-30" width="10" height="40" rx="3" fill="#78909c" stroke="#37474f" strokeWidth="2" />
               )}
-              {item.icon === '🔨' && (
+              {item.iconName === 'banhammer' && (
                 <g>
                   <rect x="0" y="-35" width="8" height="45" fill="#8d6e63" />
                   <rect x="-10" y="-45" width="28" height="18" rx="4" fill="#ffd700" stroke="#ff8f00" strokeWidth="2" />
                 </g>
               )}
-              {item.icon === '🪄' && (
-                <path d="M 0 5 L 20 -30 M 15 -35 L 25 -25" stroke="#ff4081" strokeWidth="4" />
+              {item.iconName === 'crowbar' && (
+                <path d="M 0 5 L 20 -30 M 15 -35 L 25 -25" stroke="#90a4ae" strokeWidth="4" />
               )}
-              {item.icon === '🪓' && (
+              {item.iconName === 'blood-scythe' && (
                 <g>
                   <rect x="0" y="-35" width="8" height="45" fill="#3e2723" />
                   <path d="M 4 -35 C 20 -40, 25 -10, 4 -15 Z" fill="#ff1744" stroke="#d50000" strokeWidth="2" />
@@ -267,10 +278,8 @@ export const CharacterAvatar: React.FC<CharacterAvatarProps> = ({
           )}
 
           {/* HEAD & FACE */}
-          {/* Neck */}
           <rect x="92" y="80" width="16" height="18" rx="4" fill={variant.primaryColor} />
 
-          {/* Head Shape */}
           <circle
             cx="100"
             cy="60"
@@ -280,26 +289,25 @@ export const CharacterAvatar: React.FC<CharacterAvatarProps> = ({
             strokeWidth="2.5"
           />
 
-          {/* Eyes based on silhouette */}
+          {/* Eyes / Face visor */}
           <g>
             <circle cx="90" cy="58" r="5" fill="#FFFFFF" />
             <circle cx="91" cy="58" r="2.5" fill={rarityConfig.hexColor} />
             <circle cx="110" cy="58" r="5" fill="#FFFFFF" />
             <circle cx="109" cy="58" r="2.5" fill={rarityConfig.hexColor} />
-            {/* Friendly smile */}
             <path d="M 94 72 Q 100 78 106 72" stroke="#212121" strokeWidth="2.5" fill="none" strokeLinecap="round" />
           </g>
 
           {/* HAIR COSMETIC */}
           {hair && (
             <g>
-              {hair.id === 'hair_r_01' ? (
+              {hair.iconName === 'hair-spikes' ? (
                 <path
                   d="M 68 50 L 75 25 L 85 40 L 98 15 L 110 40 L 122 25 L 132 50 Z"
                   fill={hair.styleProps.color || '#ff9100'}
                   filter={`url(#glow-${customization.figureId})`}
                 />
-              ) : hair.id === 'hair_u_01' ? (
+              ) : hair.iconName === 'hair-pompadour' ? (
                 <path
                   d="M 66 55 C 65 20, 135 20, 134 55 C 130 35, 70 35, 66 55 Z"
                   fill={hair.styleProps.color || '#00b0ff'}
@@ -313,19 +321,17 @@ export const CharacterAvatar: React.FC<CharacterAvatarProps> = ({
             </g>
           )}
 
-          {/* GLASSES / EYEWEAR COSMETIC */}
+          {/* GLASSES / VISOR COSMETIC */}
           {glasses && (
             <g>
-              {glasses.id === 'glasses_r_01' ? (
-                // 8-bit Deal With It shades
+              {glasses.iconName === 'pixel-shades' ? (
                 <path
                   d="M 75 52 H 125 V 64 H 115 V 60 H 85 V 64 H 75 Z"
                   fill="#111111"
                   stroke="#ffffff"
                   strokeWidth="1.5"
                 />
-              ) : glasses.id === 'glasses_l_01' ? (
-                // Cyber HUD Visor
+              ) : glasses.iconName === 'omni-visor' ? (
                 <rect
                   x="74"
                   y="50"
@@ -338,7 +344,6 @@ export const CharacterAvatar: React.FC<CharacterAvatarProps> = ({
                   filter={`url(#glow-${customization.figureId})`}
                 />
               ) : (
-                // Round spectacles
                 <g stroke="#ffd700" strokeWidth="2" fill="none">
                   <circle cx="89" cy="58" r="9" />
                   <circle cx="111" cy="58" r="9" />
@@ -351,8 +356,7 @@ export const CharacterAvatar: React.FC<CharacterAvatarProps> = ({
           {/* HAT / HELMET COSMETIC */}
           {hat && (
             <g transform="translate(100, 32)">
-              {hat.id === 'hat_c_01' && (
-                // Cardboard Crown
+              {hat.iconName === 'crown' && (
                 <path
                   d="M -26 0 L -18 -22 L -5 -6 L 0 -26 L 5 -6 L 18 -22 L 26 0 Z"
                   fill="#bcaaa4"
@@ -360,26 +364,22 @@ export const CharacterAvatar: React.FC<CharacterAvatarProps> = ({
                   strokeWidth="2"
                 />
               )}
-              {hat.id === 'hat_l_01' && (
-                // Golden Halo
+              {hat.iconName === 'astral-halo' && (
                 <g filter={`url(#glow-${customization.figureId})`}>
                   <ellipse cx="0" cy="-20" rx="30" ry="9" fill="none" stroke="#ffd700" strokeWidth="4" />
                   <circle cx="0" cy="-20" r="3" fill="#fff" />
                 </g>
               )}
-              {hat.id === 'hat_m_01' && (
-                // Brimstone Horns
+              {hat.iconName === 'brimstone-horns' && (
                 <g fill="#ff1744" stroke="#b71c1c" strokeWidth="2">
                   <path d="M -22 2 C -35 -15, -25 -35, -40 -40 C -30 -30, -18 -15, -15 2 Z" />
                   <path d="M 22 2 C 35 -15, 25 -35, 40 -40 C 30 -30, 18 -15, 15 2 Z" />
                 </g>
               )}
-              {hat.id === 'hat_u_01' && (
-                // Beanie
+              {hat.iconName === 'beanie' && (
                 <path d="M -28 5 C -28 -25, 28 -25, 28 5 Z" fill="#00b0ff" stroke="#01579b" strokeWidth="2" />
               )}
-              {hat.id === 'hat_r_01' && (
-                // Oni Visor
+              {hat.iconName === 'oni-visor' && (
                 <path
                   d="M -30 -5 L 30 -5 L 24 -22 L 0 -12 L -24 -22 Z"
                   fill="#ff9100"
@@ -393,9 +393,9 @@ export const CharacterAvatar: React.FC<CharacterAvatarProps> = ({
       </svg>
 
       {/* Name and Rarity Tag Badge */}
-      <div className="mt-2 flex flex-col items-center">
+      <div className="mt-1 flex flex-col items-center">
         <span
-          className="text-xs uppercase font-extrabold tracking-widest px-2.5 py-0.5 rounded-full border shadow-md"
+          className="text-[10px] uppercase font-black tracking-widest px-2.5 py-0.5 rounded-full border shadow-sm"
           style={{
             borderColor: rarityConfig.hexColor,
             color: rarityConfig.hexColor,
@@ -404,12 +404,12 @@ export const CharacterAvatar: React.FC<CharacterAvatarProps> = ({
         >
           {rarityConfig.name}
         </span>
-        <span className="text-white font-bold text-sm tracking-wide mt-1 truncate max-w-[190px]">
+        <span className="text-white font-bold text-xs tracking-wide mt-0.5 truncate max-w-[170px]">
           {figure.name}
         </span>
         {interactive && (
-          <span className="text-[10px] text-zinc-400 mt-0.5 flex items-center gap-1 group-hover:text-yellow-400">
-            <span>⚙️</span> Edit Avatar
+          <span className="text-[10px] text-zinc-400 mt-0.5 flex items-center gap-1 hover:text-yellow-400">
+            <Sliders className="w-3 h-3" /> Customize
           </span>
         )}
       </div>

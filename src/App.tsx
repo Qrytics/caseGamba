@@ -13,6 +13,7 @@ import { OpeningOverlay } from './components/OpeningOverlay';
 import { WardrobeModal } from './components/WardrobeModal';
 import { CollectionModal } from './components/CollectionModal';
 import { DoodleJumpModal } from './components/DoodleJumpModal';
+import { Shirt, Gamepad2, Star } from 'lucide-react';
 
 export const App: React.FC = () => {
   const [gameState, setGameState] = useState<GameState>(() => loadGameState());
@@ -57,7 +58,6 @@ export const App: React.FC = () => {
   const handleOpenCrate = useCallback(() => {
     if (gameState.coins < currentTierConfig.cost || isOpeningCrate) return;
 
-    // Deduct tier cost
     setGameState((prev) => ({
       ...prev,
       coins: prev.coins - currentTierConfig.cost,
@@ -65,7 +65,6 @@ export const App: React.FC = () => {
 
     setIsOpeningCrate(true);
 
-    // Roll 4 items based on current tier and current inventory
     const droppedItems = rollLootBox(gameState.currentTier, gameState);
     setActiveDropItems(droppedItems);
   }, [gameState, currentTierConfig, isOpeningCrate]);
@@ -81,7 +80,6 @@ export const App: React.FC = () => {
       const newRarityCounts = { ...prev.stats.rarityCounts };
 
       activeDropItems.forEach((item) => {
-        // Increment rarity stats
         newRarityCounts[item.rarity] = (newRarityCounts[item.rarity] || 0) + 1;
 
         if (item.isDuplicate) {
@@ -152,15 +150,12 @@ export const App: React.FC = () => {
         background: currentTierConfig.bgGradient,
       }}
     >
-      {/* Dynamic Background Room & Ambient Particles */}
+      {/* Dynamic Background Room & Ambient Glow */}
       <div className="absolute inset-0 pointer-events-none overflow-hidden">
-        {/* Radial ambient glow corresponding to tier */}
         <div
-          className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[700px] rounded-full filter blur-[120px] opacity-25 transition-all duration-1000"
+          className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[700px] rounded-full filter blur-[120px] opacity-20 transition-all duration-1000"
           style={{ backgroundColor: currentTierConfig.glowColor }}
         />
-
-        {/* Dynamic Tier Backdrop Overlay Patterns */}
         {currentTierConfig.tier >= 4 && (
           <div className="absolute inset-0 opacity-10 bg-[radial-gradient(#00ffff_1px,transparent_1px)] [background-size:24px_24px]" />
         )}
@@ -181,13 +176,13 @@ export const App: React.FC = () => {
       />
 
       {/* Main Gameplay Screen Area */}
-      <main className="relative flex-1 w-full max-w-7xl mx-auto flex flex-col lg:flex-row items-center justify-between px-4 sm:px-8 py-4 z-10 gap-6">
+      <main className="relative flex-1 w-full max-w-7xl mx-auto flex flex-col lg:flex-row items-center justify-between px-4 sm:px-6 py-2 z-10 gap-4">
         {/* Left Side: Player's Little Customizable Character Guy */}
-        <aside className="w-full lg:w-72 flex flex-col items-center bg-zinc-950/60 backdrop-blur-md border border-zinc-800/80 rounded-3xl p-5 shadow-2xl">
-          <div className="w-full flex items-center justify-between pb-3 mb-2 border-b border-zinc-800 text-xs font-bold text-zinc-400">
-            <span className="uppercase tracking-wider">Your Character</span>
-            <span className="text-[10px] bg-yellow-400/20 text-yellow-300 border border-yellow-400/40 px-2 py-0.5 rounded-full">
-              Customizable
+        <aside className="w-full lg:w-68 flex flex-col items-center bg-zinc-950/60 backdrop-blur-md border border-zinc-800/80 rounded-3xl p-4 shadow-2xl">
+          <div className="w-full flex items-center justify-between pb-2 mb-1 border-b border-zinc-800 text-xs font-bold text-zinc-400">
+            <span className="uppercase tracking-wider">Your Avatar</span>
+            <span className="text-[10px] bg-yellow-400/20 text-yellow-300 border border-yellow-400/40 px-2 py-0.5 rounded-full font-black">
+              Player
             </span>
           </div>
 
@@ -206,13 +201,14 @@ export const App: React.FC = () => {
               soundEngine.playClick();
               setShowWardrobe(true);
             }}
-            className="w-full mt-4 py-2.5 px-4 rounded-xl text-xs font-black uppercase tracking-wider bg-zinc-900 hover:bg-zinc-800 border border-zinc-700 text-zinc-200 transition-all hover:scale-102 flex items-center justify-center gap-2"
+            className="w-full mt-3 py-2 px-4 rounded-xl text-xs font-black uppercase tracking-wider bg-zinc-900 hover:bg-zinc-800 border border-zinc-700 text-zinc-200 transition-all hover:scale-102 flex items-center justify-center gap-2"
           >
-            <span>👔</span> Open Fitting Room
+            <Shirt className="w-3.5 h-3.5 text-yellow-400" />
+            <span>Fitting Room</span>
           </button>
         </aside>
 
-        {/* Center: The Big Overwatch Lootbox Stage */}
+        {/* Center: The Big 3D Overwatch Lootbox Stage */}
         <section className="flex-1 w-full flex flex-col items-center justify-center my-auto">
           <LootboxStage
             tier={currentTierConfig}
@@ -224,43 +220,43 @@ export const App: React.FC = () => {
         </section>
 
         {/* Right Side: Quick Stats / Anti-Softlock Banner */}
-        <aside className="hidden xl:flex w-72 flex-col gap-3 bg-zinc-950/60 backdrop-blur-md border border-zinc-800/80 rounded-3xl p-5 shadow-2xl text-xs">
+        <aside className="hidden xl:flex w-68 flex-col gap-2.5 bg-zinc-950/60 backdrop-blur-md border border-zinc-800/80 rounded-3xl p-4 shadow-2xl text-xs">
           <div className="flex items-center justify-between pb-2 border-b border-zinc-800 font-bold text-zinc-400 uppercase tracking-wider">
-            <span>Career Overview</span>
-            <span className="text-yellow-400">★</span>
+            <span>Career Record</span>
+            <Star className="w-3.5 h-3.5 text-yellow-400 fill-yellow-400" />
           </div>
 
-          <div className="flex justify-between items-center py-1">
+          <div className="flex justify-between items-center py-0.5">
             <span className="text-zinc-400">Crates Opened:</span>
             <span className="text-white font-black">{gameState.stats.cratesOpened}</span>
           </div>
-          <div className="flex justify-between items-center py-1">
+          <div className="flex justify-between items-center py-0.5">
             <span className="text-zinc-400">Duplicates Sold:</span>
             <span className="text-amber-400 font-black">{gameState.stats.duplicatesCashed}</span>
           </div>
-          <div className="flex justify-between items-center py-1">
-            <span className="text-zinc-400">Doodle Jump Record:</span>
+          <div className="flex justify-between items-center py-0.5">
+            <span className="text-zinc-400">Doodle Jump Best:</span>
             <span className="text-emerald-400 font-black">{gameState.stats.doodleJumpBestScore} pts</span>
           </div>
 
-          <div className="border-t border-zinc-800 pt-3 flex flex-col gap-2">
-            <div className="text-[11px] font-bold text-zinc-400 uppercase tracking-wider">
-              Rarity Unboxed:
+          <div className="border-t border-zinc-800 pt-2 flex flex-col gap-1.5">
+            <div className="text-[10px] font-bold text-zinc-400 uppercase tracking-wider">
+              Rarities Unboxed:
             </div>
             <div className="grid grid-cols-5 gap-1 text-center font-black text-[10px]">
-              <div className="p-1 rounded bg-zinc-800 text-zinc-400" title="Common">
+              <div className="p-1 rounded bg-zinc-800/80 text-zinc-400" title="Common">
                 C: {gameState.stats.rarityCounts.common || 0}
               </div>
-              <div className="p-1 rounded bg-blue-950 text-blue-400" title="Uncommon">
+              <div className="p-1 rounded bg-blue-950/80 text-blue-400" title="Uncommon">
                 U: {gameState.stats.rarityCounts.uncommon || 0}
               </div>
-              <div className="p-1 rounded bg-amber-950 text-amber-400" title="Rare">
+              <div className="p-1 rounded bg-amber-950/80 text-amber-400" title="Rare">
                 R: {gameState.stats.rarityCounts.rare || 0}
               </div>
-              <div className="p-1 rounded bg-red-950 text-red-400" title="Mythic">
+              <div className="p-1 rounded bg-red-950/80 text-red-400" title="Mythic">
                 M: {gameState.stats.rarityCounts.mythic || 0}
               </div>
-              <div className="p-1 rounded bg-yellow-950 text-yellow-300" title="Legendary">
+              <div className="p-1 rounded bg-yellow-950/80 text-yellow-300" title="Legendary">
                 L: {gameState.stats.rarityCounts.legendary || 0}
               </div>
             </div>
@@ -271,15 +267,16 @@ export const App: React.FC = () => {
               soundEngine.playClick();
               setShowDoodleJump(true);
             }}
-            className="w-full mt-2 py-2 px-3 rounded-xl bg-emerald-950/60 hover:bg-emerald-900/60 border border-emerald-500/40 text-emerald-400 font-black text-[11px] uppercase tracking-wider transition-colors flex items-center justify-center gap-1.5"
+            className="w-full mt-1.5 py-2 px-3 rounded-xl bg-emerald-950/60 hover:bg-emerald-900/60 border border-emerald-500/40 text-emerald-400 font-black text-[11px] uppercase tracking-wider transition-colors flex items-center justify-center gap-1.5"
           >
-            <span>🦘</span> Play Doodle Jump
+            <Gamepad2 className="w-3.5 h-3.5" />
+            <span>Play Doodle Jump</span>
           </button>
         </aside>
       </main>
 
       {/* Bottom Dock: 10 Crate Tiers Selector */}
-      <footer className="w-full z-20 pb-4 pt-1 flex justify-center">
+      <footer className="w-full z-20 pb-3 pt-1 flex justify-center">
         <TierSelector
           currentTier={gameState.currentTier}
           userCoins={gameState.coins}

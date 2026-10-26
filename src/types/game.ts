@@ -32,7 +32,7 @@ export interface CosmeticItem {
   rarity: Rarity;
   tier: number;
   description: string;
-  icon: string; // SVG path or SVG identifier
+  iconName: string; // Vector icon key
   styleProps: {
     color?: string;
     secondaryColor?: string;

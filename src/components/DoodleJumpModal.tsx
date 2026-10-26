@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState, useCallback } from 'react';
 import { soundEngine } from '../audio/soundEngine';
-import { Coins, Trophy, RefreshCw, X } from 'lucide-react';
+import { Coins, Trophy, RefreshCw, X, Gamepad2, ArrowLeft, ArrowRight } from 'lucide-react';
 
 interface DoodleJumpModalProps {
   onClose: () => void;
@@ -29,7 +29,6 @@ export const DoodleJumpModal: React.FC<DoodleJumpModalProps> = ({
   const [currentScore, setCurrentScore] = useState<number>(0);
   const [coinsGathered, setCoinsGathered] = useState<number>(0);
 
-  // References for game loop state
   const stateRef = useRef({
     player: {
       x: 180,
@@ -74,7 +73,6 @@ export const DoodleJumpModal: React.FC<DoodleJumpModalProps> = ({
     setCoinsGathered(0);
     setGameOver(false);
 
-    // Initial platforms
     const initialPlatforms: Platform[] = [
       { x: 160, y: 550, width: 80, height: 14, type: 'standard' },
       { x: 80, y: 460, width: 80, height: 14, type: 'standard', hasCoin: true },
@@ -126,25 +124,21 @@ export const DoodleJumpModal: React.FC<DoodleJumpModalProps> = ({
       const W = canvas.width;
       const H = canvas.height;
 
-      // --- 1. PHYSICS UPDATE ---
+      // 1. Physics update
       const p = s.player;
 
-      // Horizontal acceleration
       if (s.keys.left) p.vx = -6.5;
       else if (s.keys.right) p.vx = 6.5;
       else p.vx *= 0.85;
 
       p.x += p.vx;
 
-      // Screen edge wrap
       if (p.x < -p.width) p.x = W;
       if (p.x > W) p.x = -p.width;
 
-      // Gravity
       p.vy += 0.38;
       p.y += p.vy;
 
-      // Camera follow when player is in upper half
       if (p.y < H / 2) {
         const diff = H / 2 - p.y;
         p.y = H / 2;
@@ -152,18 +146,15 @@ export const DoodleJumpModal: React.FC<DoodleJumpModalProps> = ({
         s.score += Math.floor(diff);
         setCurrentScore(s.score);
 
-        // Move all platforms downward
         s.platforms.forEach((plat) => {
           plat.y += diff;
         });
       }
 
-      // Platform collisions (only when falling)
       if (p.vy > 0) {
         s.platforms.forEach((plat) => {
           if (plat.broken) return;
 
-          // Check AABB bounding box collision with bottom feet of player
           const feetY = p.y + p.height;
           const prevFeetY = feetY - p.vy;
 
@@ -188,7 +179,6 @@ export const DoodleJumpModal: React.FC<DoodleJumpModalProps> = ({
         });
       }
 
-      // Coin pickups
       s.platforms.forEach((plat) => {
         if (plat.hasCoin && !plat.broken) {
           const coinX = plat.x + plat.width / 2;
@@ -203,7 +193,6 @@ export const DoodleJumpModal: React.FC<DoodleJumpModalProps> = ({
         }
       });
 
-      // Update moving platforms
       s.platforms.forEach((plat) => {
         if (plat.type === 'moving' && plat.vx) {
           plat.x += plat.vx;
@@ -213,7 +202,6 @@ export const DoodleJumpModal: React.FC<DoodleJumpModalProps> = ({
         }
       });
 
-      // Filter out off-screen platforms and generate new ones above
       s.platforms = s.platforms.filter((plat) => plat.y < H + 50);
 
       const highestPlat = s.platforms.reduce((min, p) => Math.min(min, p.y), H);
@@ -234,17 +222,14 @@ export const DoodleJumpModal: React.FC<DoodleJumpModalProps> = ({
         });
       }
 
-      // Game over when falling off the bottom
       if (p.y > H + 50) {
-        // Payout: 1 coin per 25 height points + coins collected
         const scoreCoins = Math.floor(s.score / 25);
         const finalCoins = Math.max(10, scoreCoins + s.coins);
         triggerGameOver(s.score, finalCoins);
         return;
       }
 
-      // --- 2. RENDERING ---
-      // Graph Paper Grid Background
+      // 2. Rendering
       ctx.fillStyle = '#0f172a';
       ctx.fillRect(0, 0, W, H);
 
@@ -270,23 +255,32 @@ export const DoodleJumpModal: React.FC<DoodleJumpModalProps> = ({
 
         ctx.save();
         if (plat.type === 'spring') {
-          // Purple spring platform
-          ctx.fillStyle = '#a855f7';
-          ctx.fillRect(plat.x, plat.y, plat.width, plat.height);
-          // Spring icon coil
+          ctx.fillStyle = '#9333ea';
+          ctx.beginPath();
+          ctx.roundRect(plat.x, plat.y, plat.width, plat.height, 4);
+          ctx.fill();
+          ctx.strokeStyle = '#c084fc';
+          ctx.lineWidth = 1.5;
+          ctx.stroke();
+
           ctx.strokeStyle = '#f3e8ff';
-          ctx.lineWidth = 2.5;
+          ctx.lineWidth = 2;
           ctx.beginPath();
           ctx.arc(plat.x + plat.width / 2, plat.y - 6, 6, 0, Math.PI, true);
           ctx.stroke();
         } else if (plat.type === 'moving') {
-          // Blue moving platform
           ctx.fillStyle = '#0284c7';
-          ctx.fillRect(plat.x, plat.y, plat.width, plat.height);
+          ctx.beginPath();
+          ctx.roundRect(plat.x, plat.y, plat.width, plat.height, 4);
+          ctx.fill();
+          ctx.strokeStyle = '#38bdf8';
+          ctx.lineWidth = 1.5;
+          ctx.stroke();
         } else if (plat.type === 'fragile') {
-          // Cracked brown platform
           ctx.fillStyle = '#78350f';
-          ctx.fillRect(plat.x, plat.y, plat.width, plat.height);
+          ctx.beginPath();
+          ctx.roundRect(plat.x, plat.y, plat.width, plat.height, 4);
+          ctx.fill();
           ctx.strokeStyle = '#d97706';
           ctx.lineWidth = 2;
           ctx.beginPath();
@@ -295,53 +289,51 @@ export const DoodleJumpModal: React.FC<DoodleJumpModalProps> = ({
           ctx.lineTo(plat.x + 70, plat.y + 3);
           ctx.stroke();
         } else {
-          // Green standard platform
-          ctx.fillStyle = '#10b981';
-          ctx.fillRect(plat.x, plat.y, plat.width, plat.height);
+          ctx.fillStyle = '#059669';
+          ctx.beginPath();
+          ctx.roundRect(plat.x, plat.y, plat.width, plat.height, 4);
+          ctx.fill();
+          ctx.strokeStyle = '#34d399';
+          ctx.lineWidth = 1.5;
+          ctx.stroke();
         }
 
-        // Draw Coin pickup on platform
         if (plat.hasCoin) {
           ctx.fillStyle = '#fbbf24';
           ctx.beginPath();
           ctx.arc(plat.x + plat.width / 2, plat.y - 12, 7, 0, Math.PI * 2);
           ctx.fill();
           ctx.strokeStyle = '#f59e0b';
+          ctx.lineWidth = 1.5;
           ctx.stroke();
         }
         ctx.restore();
       });
 
-      // Draw Player Doodle Character
+      // Draw Player Stylized Vector Model
       ctx.save();
       ctx.translate(p.x + p.width / 2, p.y + p.height / 2);
       if (p.facing === 'left') {
         ctx.scale(-1, 1);
       }
 
-      // Body
-      ctx.fillStyle = '#e2e8f0';
+      // Torso & Armor
+      ctx.fillStyle = '#334155';
       ctx.beginPath();
-      ctx.roundRect(-p.width / 2, -p.height / 2, p.width, p.height, 10);
+      ctx.roundRect(-p.width / 2, -p.height / 2, p.width, p.height, 8);
       ctx.fill();
-      ctx.strokeStyle = '#0f172a';
+      ctx.strokeStyle = '#00e5ff';
       ctx.lineWidth = 2;
       ctx.stroke();
 
-      // Doodle Eyes
-      ctx.fillStyle = '#0f172a';
-      ctx.beginPath();
-      ctx.arc(4, -6, 3, 0, Math.PI * 2);
-      ctx.fill();
+      // Cyber Visor
+      ctx.fillStyle = '#00e5ff';
+      ctx.fillRect(2, -8, 10, 5);
 
-      // Doodle Snout
-      ctx.fillStyle = '#cbd5e1';
-      ctx.fillRect(6, -2, 8, 5);
-
-      // Cute feet
-      ctx.fillStyle = '#94a3b8';
-      ctx.fillRect(-10, p.height / 2 - 4, 8, 6);
-      ctx.fillRect(2, p.height / 2 - 4, 8, 6);
+      // Jet boots / feet
+      ctx.fillStyle = '#fbbf24';
+      ctx.fillRect(-10, p.height / 2 - 4, 8, 5);
+      ctx.fillRect(2, p.height / 2 - 4, 8, 5);
 
       ctx.restore();
 
@@ -360,18 +352,18 @@ export const DoodleJumpModal: React.FC<DoodleJumpModalProps> = ({
   const calculatedCoins = Math.max(10, Math.floor(currentScore / 25) + coinsGathered);
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md select-none animate-fade-in">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/85 backdrop-blur-md select-none animate-fade-in">
       <div className="relative w-full max-w-md bg-slate-900 border-2 border-slate-700 rounded-3xl overflow-hidden shadow-2xl flex flex-col items-center">
         {/* Header HUD */}
-        <div className="w-full flex items-center justify-between px-6 py-4 bg-slate-950/80 border-b border-slate-800">
-          <div className="flex items-center gap-3">
-            <span className="text-xl">🦘</span>
+        <div className="w-full flex items-center justify-between px-5 py-3.5 bg-slate-950/90 border-b border-slate-800">
+          <div className="flex items-center gap-2.5">
+            <Gamepad2 className="w-5 h-5 text-emerald-400" />
             <div>
-              <h3 className="text-sm font-black text-white uppercase tracking-wider font-display">
-                Scrappy Doodle Jump
+              <h3 className="text-xs sm:text-sm font-black text-white uppercase tracking-wider font-display">
+                Scrappy Jump Arcade
               </h3>
-              <p className="text-[11px] text-zinc-400">
-                Earn coins to buy lootcrates!
+              <p className="text-[10px] text-zinc-400">
+                Earn coins to unlock crates
               </p>
             </div>
           </div>
@@ -382,21 +374,21 @@ export const DoodleJumpModal: React.FC<DoodleJumpModalProps> = ({
             }}
             className="p-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-zinc-400 hover:text-white transition-colors"
           >
-            <X className="w-5 h-5" />
+            <X className="w-4 h-4" />
           </button>
         </div>
 
         {/* Live Score Strip */}
-        <div className="w-full flex items-center justify-around py-2.5 px-4 bg-slate-900/90 border-b border-slate-800 text-xs font-bold">
-          <div className="text-zinc-400 flex items-center gap-1.5">
-            Height: <span className="text-white text-sm font-black">{currentScore}</span>
+        <div className="w-full flex items-center justify-around py-2 px-4 bg-slate-900/90 border-b border-slate-800 text-xs font-bold">
+          <div className="text-zinc-400 flex items-center gap-1">
+            Height: <span className="text-white font-black">{currentScore}</span>
           </div>
-          <div className="text-amber-400 flex items-center gap-1.5">
-            <Coins className="w-4 h-4 fill-yellow-400" />
-            <span className="text-yellow-300 text-sm font-black">+{calculatedCoins} Coins</span>
+          <div className="text-amber-400 flex items-center gap-1">
+            <Coins className="w-3.5 h-3.5 fill-yellow-400" />
+            <span className="text-yellow-300 font-black">+{calculatedCoins} Coins</span>
           </div>
-          <div className="text-zinc-400 flex items-center gap-1.5">
-            <Trophy className="w-3.5 h-3.5 text-yellow-500" />
+          <div className="text-zinc-400 flex items-center gap-1">
+            <Trophy className="w-3 h-3 text-yellow-500" />
             <span>Best: {highScore}</span>
           </div>
         </div>
@@ -406,54 +398,56 @@ export const DoodleJumpModal: React.FC<DoodleJumpModalProps> = ({
           <canvas
             ref={canvasRef}
             width={380}
-            height={520}
-            className="w-full max-w-[380px] h-[520px] block"
+            height={500}
+            className="w-full max-w-[380px] h-[500px] block"
           />
 
           {/* Game Over Modal Overlay */}
           {gameOver && (
             <div className="absolute inset-0 bg-slate-950/90 flex flex-col items-center justify-center p-6 text-center animate-fade-in">
-              <span className="text-5xl mb-2">💥</span>
-              <h2 className="text-2xl font-black text-white uppercase tracking-wider">
-                Game Over!
+              <div className="w-12 h-12 rounded-2xl bg-red-500/20 border border-red-500/40 flex items-center justify-center mb-2">
+                <Gamepad2 className="w-6 h-6 text-red-400" />
+              </div>
+              <h2 className="text-xl font-black text-white uppercase tracking-wider">
+                Run Concluded
               </h2>
-              <p className="text-xs text-zinc-400 mt-1">
-                You fell down into the scrap chute.
+              <p className="text-[11px] text-zinc-400 mt-0.5">
+                Fell into the scrap reclamation chute.
               </p>
 
-              <div className="w-full bg-slate-900 border border-slate-800 rounded-2xl p-4 my-5 flex flex-col gap-2">
-                <div className="flex justify-between items-center text-sm">
-                  <span className="text-zinc-400">Score Achieved:</span>
+              <div className="w-full bg-slate-900 border border-slate-800 rounded-2xl p-3.5 my-4 flex flex-col gap-1.5">
+                <div className="flex justify-between items-center text-xs">
+                  <span className="text-zinc-400">Score Reached:</span>
                   <span className="text-white font-black">{currentScore}</span>
                 </div>
-                <div className="flex justify-between items-center text-sm">
-                  <span className="text-zinc-400">Coins Picked Up:</span>
+                <div className="flex justify-between items-center text-xs">
+                  <span className="text-zinc-400">Coins Collected:</span>
                   <span className="text-amber-400 font-bold">+{coinsGathered}</span>
                 </div>
-                <div className="border-t border-slate-800 pt-2 flex justify-between items-center text-base font-black">
+                <div className="border-t border-slate-800 pt-1.5 flex justify-between items-center text-sm font-black">
                   <span className="text-emerald-400">Total Coins Earned:</span>
                   <span className="text-yellow-400 flex items-center gap-1">
-                    <Coins className="w-4 h-4 fill-yellow-400" /> +{calculatedCoins}
+                    <Coins className="w-3.5 h-3.5 fill-yellow-400" /> +{calculatedCoins}
                   </span>
                 </div>
               </div>
 
-              <div className="w-full flex flex-col gap-2.5">
+              <div className="w-full flex flex-col gap-2">
                 <button
                   onClick={() => {
                     soundEngine.playClick();
                     initGame();
                   }}
-                  className="w-full py-3.5 px-4 rounded-xl font-black text-sm uppercase tracking-wider bg-emerald-500 hover:bg-emerald-400 text-black flex items-center justify-center gap-2 transition-transform hover:scale-105 active:scale-95 shadow-lg shadow-emerald-500/20"
+                  className="w-full py-3 px-4 rounded-xl font-black text-xs uppercase tracking-wider bg-emerald-500 hover:bg-emerald-400 text-black flex items-center justify-center gap-1.5 transition-transform hover:scale-102 active:scale-98 shadow-md"
                 >
-                  <RefreshCw className="w-4 h-4" /> Play Again
+                  <RefreshCw className="w-3.5 h-3.5" /> Play Again
                 </button>
                 <button
                   onClick={() => {
                     soundEngine.playClick();
                     onClose();
                   }}
-                  className="w-full py-2.5 px-4 rounded-xl font-bold text-xs uppercase tracking-wider bg-slate-800 hover:bg-slate-700 text-zinc-300 transition-colors"
+                  className="w-full py-2 px-4 rounded-xl font-bold text-xs uppercase tracking-wider bg-slate-800 hover:bg-slate-700 text-zinc-300 transition-colors"
                 >
                   Return to Lootboxes
                 </button>
@@ -462,28 +456,28 @@ export const DoodleJumpModal: React.FC<DoodleJumpModalProps> = ({
           )}
         </div>
 
-        {/* Mobile / Screen Touch Controls */}
-        <div className="w-full p-3 bg-slate-950 border-t border-slate-800 flex items-center justify-between gap-4">
+        {/* Touch Controls */}
+        <div className="w-full p-2.5 bg-slate-950 border-t border-slate-800 flex items-center justify-between gap-3">
           <button
             onMouseDown={() => (stateRef.current.keys.left = true)}
             onMouseUp={() => (stateRef.current.keys.left = false)}
             onTouchStart={() => (stateRef.current.keys.left = true)}
             onTouchEnd={() => (stateRef.current.keys.left = false)}
-            className="flex-1 py-3 rounded-xl bg-slate-800 hover:bg-slate-700 active:bg-slate-600 text-white font-black text-lg transition-colors select-none"
+            className="flex-1 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 active:bg-slate-600 text-white font-black text-sm transition-colors select-none flex items-center justify-center gap-1"
           >
-            ← LEFT
+            <ArrowLeft className="w-4 h-4" /> Left
           </button>
           <span className="text-[10px] text-zinc-500 font-semibold uppercase tracking-wider">
-            A / D or Keys
+            A / D Keys
           </span>
           <button
             onMouseDown={() => (stateRef.current.keys.right = true)}
             onMouseUp={() => (stateRef.current.keys.right = false)}
             onTouchStart={() => (stateRef.current.keys.right = true)}
             onTouchEnd={() => (stateRef.current.keys.right = false)}
-            className="flex-1 py-3 rounded-xl bg-slate-800 hover:bg-slate-700 active:bg-slate-600 text-white font-black text-lg transition-colors select-none"
+            className="flex-1 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 active:bg-slate-600 text-white font-black text-sm transition-colors select-none flex items-center justify-center gap-1"
           >
-            RIGHT →
+            Right <ArrowRight className="w-4 h-4" />
           </button>
         </div>
       </div>
